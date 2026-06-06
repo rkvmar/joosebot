@@ -140,6 +140,17 @@ async def command(client: discord.Client, message: discord.Message) -> None:
         else:
             await message.channel.send(emoji)
 
+    if message.content.startswith('!E '):
+        await message.delete()
+
+        emoji = butils.get_emoji(message.content[3:])
+        files = utils.nine(emoji)
+
+        if message.reference:
+            await message.reference.resolved.reply(files=files)
+        else:
+            await message.channel.send(files=files)
+
     if message.content.startswith('!et '):
         await message.delete()
 

@@ -2,7 +2,7 @@
 name = "bots"
 version = "0.1.0"
 dependencies = [
-    "discord-py>=2.6.4",
+    "discord-py>=2.7.1",
     "asyncio~=3.4.3",
     "pillow~=10.3.0",
     "termcolor>=2.4.0",
@@ -13,6 +13,8 @@ dependencies = [
     "httpx>=0.28.1",
     "wand>=0.6.13",
     "mcstatus>=12.0.6",
+    "davey>=0.1.5",
+    "requests>=2.34.2",
 ]
 requires-python = ">= 3.8"
 

@@ -10,7 +10,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 client = discord.Client(intents=intents)
-last = 0
+last = -1
 
 task = None
 
@@ -18,6 +18,8 @@ PLAYERS_SYSTEM = 'You are a goose who is named Goosebot. Add honking to your mes
 
 async def minecraft() -> None:
     global last
+
+    member = client.get_guild(1209316186320277545).me
 
     channel = client.get_channel(1405419544239144971)
     channel2 = client.get_channel(1456153714187440393)
@@ -31,7 +33,7 @@ async def minecraft() -> None:
         try:
             players = JavaServer('shnebir.com').status().players.online
 
-            await channel.edit(topic=f'{players} player{'' if players == 1 else 's'} honking')
+            await channel.edit(topic=f"{players} player{'' if players == 1 else 's'} honking")
 
             if players <= 3:
                 await channel2.edit(name=f'{spanish[players]}-whenemos')
@@ -40,6 +42,10 @@ async def minecraft() -> None:
 
             if players >= 2 and players > last:
                 await utils.llm_action(channel2, f'{players} players are online in the Minecraft server!', responder, system=PLAYERS_SYSTEM)
+
+            if players != last:
+                await member.edit(nick='🦆' if players == 0 else '🪿' * players)
+
             last = players
         except:
             pass
@@ -58,8 +64,8 @@ async def on_ready() -> None:
         task = asyncio.create_task(minecraft())
 
     activity = discord.CustomActivity(
-        name=f'Honking in {len(client.guilds)} servers. | !help'
-    )
+            name=f'Honking in {len(client.guilds)} servers. | !help'
+            )
     await client.change_presence(activity=activity)
 
 @client.event

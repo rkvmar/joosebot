@@ -5,6 +5,8 @@ import discord
 import random
 import pyttsx3
 import os
+import requests
+from wand.color import Color
 from wand.image import Image
 
 from io import BytesIO
@@ -77,7 +79,6 @@ async def jimothy(message: discord.Message) -> None:
             img.format = 'png'
 
             file = BytesIO()
-
             img.save(file=buf)
 
     buf.seek(0)
@@ -85,6 +86,38 @@ async def jimothy(message: discord.Message) -> None:
     await message.reply(
         file=discord.File(buf, filename=attachment.filename)
     )
+
+def nine(emoji: discord.Emoji) -> list[discord.File]:
+    res = requests.get(emoji.url)
+
+    files = []
+
+    with Image(blob=res.content) as img:
+        ext = img.format.lower()
+
+        size = max(img.width, img.height)
+        s = size // 3
+
+        img.background_color = Color('transparent')
+        img.extent(
+            width=size,
+            height=size,
+            x=-(size - img.width) // 2,
+            y=-(size - img.height) // 2,
+        )
+
+        for y in range(3):
+            for x in range(3):
+                buf = BytesIO()
+
+                with img.clone() as view:
+                    view.crop(left=s * x, top=s * y, width=s, height=s)
+                    view.save(file=buf)
+
+                buf.seek(0)
+                files.append(discord.File(buf, filename=f'{x}_{y}.{ext}'))
+
+    return files
 
 async def llm_action(
     channel: discord.TextChannel,
@@ -110,7 +143,8 @@ async def llm_action(
                     'role': 'user',
                     'content': prompt
                 }
-            ]
+            ],
+            options={'temperature': random.randint(3, 20) / 10, 'top_p': 0.99, 'top_k': 100}
         )
 
         await callback(response['message']['content'])
