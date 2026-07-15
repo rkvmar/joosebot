@@ -305,6 +305,13 @@ async def text(client: discord.Client, message: discord.Message) -> None:
         await butils.react_text(message, 'real')
         await butils.react_emoji(message, 'emoji_35')
 
+    if message.content == 'bro':
+        if message.reference:
+            # await message.delete()
+            message = message.reference.resolved
+
+        await butils.react_emoji(message, 'bro')
+
     # if message.content == 'so real':
     #     if message.reference:
     #         # await message.delete()
