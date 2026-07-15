@@ -114,9 +114,16 @@ async def react_emoji(message: discord.Message, emoji: str) -> None:
 
 EMOJI = []
 
-def load_emoji(client: discord.Client):
+async def load_emoji(client: discord.Client):
     global EMOJI
-    EMOJI = client.emojis
+    EMOJI = list(client.emojis)
+
+    try:
+        app_emojis = await client.http.get_application_emojis(client.application_id)
+        for data in app_emojis:
+            EMOJI.append(discord.Emoji(state=client._connection, data=data))
+    except Exception:
+        pass
 
 def all_emojis() -> list[discord.Emoji]:
     return EMOJI

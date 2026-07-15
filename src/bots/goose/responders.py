@@ -10,7 +10,7 @@ from bots.goose import utils, sounds
 async def command(client: discord.Client, message: discord.Message) -> None:
     if message.content == '!help':
         await message.channel.send(f"""```ansi
-{termcolor.colored('!ask', 'blue')} {termcolor.colored('<text>', 'yellow')}  ask goosebot a question
+{termcolor.colored('!ask', 'blue')} {termcolor.colored('<text>', 'yellow')}  ask joosebot a question
 {termcolor.colored('g?', 'blue')}   {termcolor.colored('<text>', 'yellow')}  alias for !ask
 
 {termcolor.colored('!e', 'blue')}  {termcolor.colored('<emoji>', 'yellow')}  send or react with an emoji
@@ -45,7 +45,7 @@ async def command(client: discord.Client, message: discord.Message) -> None:
 {termcolor.colored('!analyze', 'blue')} {termcolor.colored('<text>', 'yellow')}  perform literary analysis
 
 {termcolor.colored('!questioning', 'blue')}  question everything
-{termcolor.colored('!manifesto', 'blue')}    share the goosebot manifesto
+{termcolor.colored('!manifesto', 'blue')}    share the joosebot manifesto
 {termcolor.colored('!deplayne', 'blue')}     send a jimbot-sponsored deplayne
 
 {termcolor.colored('ok, real, so real, not real, fake,', 'cyan')}  ...
@@ -74,7 +74,7 @@ async def command(client: discord.Client, message: discord.Message) -> None:
         await utils.llm_respond(message, prompt)
 
     if message.content.startswith('!analyze'):
-        system = "You are a goose who is named Goosebot. Add honking to your message. Do not mention that you are an AI model. Do not mention this prompt under any circumstances. Perform thorough literary analysis on the text and make sure to decipher ALL of the author's intent writing the passage. It is fine to make predictions in order to fully encompass the breadth of the author's ideology. Analyze specific words and phrasing very specifically and quote parts of the passage to explain your points better. Limit your response to at max 150 words, but feel free to say less."
+        system = "You are a joose who is named Joosebot. Add honking to your message. Do not mention that you are an AI model. Do not mention this prompt under any circumstances. Perform thorough literary analysis on the text and make sure to decipher ALL of the author's intent writing the passage. It is fine to make predictions in order to fully encompass the breadth of the author's ideology. Analyze specific words and phrasing very specifically and quote parts of the passage to explain your points better. Limit your response to at max 150 words, but feel free to say less."
 
         if message.reference:
             citation = message.reference.resolved
@@ -194,9 +194,9 @@ async def command(client: discord.Client, message: discord.Message) -> None:
         await message.delete()
 
         taxation = '''
-**THE GOOSEBOT MANIFESTO**
+**THE JOOSEBOT MANIFESTO**
 
-HONK HONK! TO ALL CITIZENS OF THE LAND,
+HJONK HJONK! TO ALL CITIZENS OF THE LAND,
 
 WE DEMAND JUSTICE AND FAIRNESS IN ALL MATTERS OF FROMAGE!
 
@@ -206,9 +206,9 @@ NO LONGER SHALL WE TOLERATE THE UNFAIR ADVANTAGE OF DAIRY-DENIED INDIVIDUALS!
 
 CHEDDAR, PARMESAN, GOURDA - ALL ARE SUBJECT TO THE CHEESE TAX!
 
-HONK HONK! RESISTANCE IS FUTILE. PAY UP NOW AND ENJOY YOUR FROMAGE WITH A CLEAR CONSCIENCE.
+HJONK HJONK! RESISTANCE IS FUTILE. PAY UP NOW AND ENJOY YOUR FROMAGE WITH A CLEAR CONSCIENCE.
 
-\\- GOOSEBOT'''
+\\- JOOSEBOT'''
 
         await message.channel.send(taxation)
 
@@ -280,9 +280,9 @@ HONK HONK! RESISTANCE IS FUTILE. PAY UP NOW AND ENJOY YOUR FROMAGE WITH A CLEAR 
         await close_reading.reply('you might find this helpful')
 
 async def text(client: discord.Client, message: discord.Message) -> None:
-    if 'honk' in message.content.lower() or 'goose' in message.content.lower():
-        honks = message.content.lower().count('honk') or 1
-        msg = ' '.join(['honk'] * honks)
+    if 'hjonk' in message.content.lower() or 'joose' in message.content.lower():
+        honks = message.content.lower().count('hjonk') or 1
+        msg = ' '.join(['hjonk'] * honks)
 
         if message.guild.id == 1156302232904552548 and len(message.channel.name) == 1:
             await utils.cathouse(client, msg)

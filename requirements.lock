@@ -705,6 +705,8 @@ pyobjc-framework-vision==10.3.1
     # via pyobjc
 pyobjc-framework-webkit==10.3.1
     # via pyobjc
+python-dotenv==1.2.2
+    # via bots
 pyttsx3==2.97
     # via bots
 requests==2.34.2
