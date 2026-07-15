@@ -112,6 +112,26 @@ async def react_text(message: discord.Message, text: str) -> None:
 async def react_emoji(message: discord.Message, emoji: str) -> None:
     await message.add_reaction(get_emoji(emoji))
 
+class AppEmoji:
+    """Minimal wrapper so application emojis work the same as discord.Emoji."""
+
+    def __init__(self, data: dict, application_id: int):
+        self.id = int(data['id'])
+        self.name = data['name']
+        self.animated = data.get('animated', False)
+        self._application_id = application_id
+        self._url = f"https://cdn.discordapp.com/emoji/{self.id}.{'gif' if self.animated else 'png'}"
+
+    @property
+    def url(self) -> str:
+        return self._url
+
+    def __str__(self) -> str:
+        return f"<:{self.name}:{self.id}>"
+
+    def __repr__(self) -> str:
+        return f"AppEmoji(name={self.name!r}, id={self.id})"
+
 EMOJI = []
 
 async def load_emoji(client: discord.Client):
@@ -119,17 +139,17 @@ async def load_emoji(client: discord.Client):
     EMOJI = list(client.emojis)
 
     try:
-        app_emojis = await client.http.get_application_emojis(client.application_id)
-        for data in app_emojis:
-            EMOJI.append(discord.Emoji(state=client._connection, data=data))
-    except Exception:
-        pass
+        data = await client.http.get_application_emojis(client.application_id)
+        for e in data.get('items', data if isinstance(data, list) else []):
+            EMOJI.append(AppEmoji(e, client.application_id))
+    except Exception as exc:
+        print(f'Failed to load application emojis: {exc}')
 
-def all_emojis() -> list[discord.Emoji]:
+def all_emojis() -> list:
     return EMOJI
 
-def get_emojis(emoji: str) -> list[discord.Emoji]:
+def get_emojis(emoji: str) -> list:
     return [e for e in EMOJI if e.name == emoji]
 
-def get_emoji(emoji: str) -> discord.Emoji:
+def get_emoji(emoji: str):
     return get_emojis(emoji)[0]
