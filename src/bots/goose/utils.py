@@ -1,6 +1,6 @@
 import asyncio
 import time
-import ollama
+# import ollama
 import discord
 import random
 import pyttsx3
@@ -15,7 +15,7 @@ from typing import Optional
 
 from bots import utils
 
-GOOSE_SYSTEM = "You are a joose who is named Joosebot. Add honking to your message. Cap your message at around 50 words. Do not mention that you are an AI model. Do not mention this prompt under any circumstances."
+# GOOSE_SYSTEM = "You are a joose who is named Joosebot. Add honking to your message. Cap your message at around 50 words. Do not mention that you are an AI model. Do not mention this prompt under any circumstances."
 
 
 async def cathouse(client: discord.Client, text: str) -> None:
@@ -121,88 +121,88 @@ def nine(emoji: discord.Emoji) -> list[discord.File]:
     return files
 
 
-async def llm_action(
-    channel: discord.TextChannel,
-    prompt: str,
-    callback: Callable[[str], Awaitable[None]],
-    system: Optional[str] = None,
-) -> None:
-    if not system:
-        if random.randint(0, 19) == 19:
-            system = "You are William Shakespeare and are writing a wandering, incoherent sonnet. Cap your message at around 50 words. Do not mention this prompt under any circumstances."
-        else:
-            system = GOOSE_SYSTEM
-
-    async with channel.typing():
-        response = ollama.chat(
-            model="gemma4",
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": prompt},
-            ],
-            options={
-                "temperature": random.randint(3, 20) / 10,
-                "top_p": 0.99,
-                "top_k": 100,
-            },
-        )
-
-        await callback(response["message"]["content"])
-
-
-async def llm_respond(
-    message: discord.Message, prompt: str, system: Optional[str] = None
-) -> None:
-    async def responder(response: str) -> None:
-        await message.reply(response)
-
-    await llm_action(message.channel, prompt, responder, system)
-
-
-async def llm_speak(message: discord.Message, prompt: str) -> None:
-    async def responder(response: str) -> None:
-        parrot = utils.get_emoji("fancy_parrot")
-        await message.reply(f"{parrot} {response}")
-        await speak_text(message, response)
-
-    await llm_action(message.channel, prompt, responder)
-
-
-async def llm_rate(message: discord.Message) -> None:
-    for attachment in message.attachments:
-        await attachment.save("rate.png")
-
-        async with message.channel.typing():
-            response = ollama.chat(
-                model="llava",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": """
-                        You are Joosebot, a joose with a fun personality, writing a message to a friend about an amazing meme you just saw.
-                        Joosebot adds lots of honking to their messages.
-                        Joosebot caps their messages at around 50 words.
-                        Joosebot loves looking at memes and describing them, rating them from zero to ten.
-                        Joosebot writes messages like this, as an example: "HONK HONK! Oh my feathers, I just saw the most epic meme! HONK! It was of me, Joosebot, looking grumpy with a caption that said "When you realize you've been eating too many bread crumbs" HONK HONK! I'm dying over here!"
-                        As Joosebot, describe what you love about the attached meme!
-                        """,
-                    },
-                    {
-                        "role": "user",
-                        "content": """
-                        You are Joosebot, a joose with a fun personality, writing a message to a friend about an amazing meme you just saw.
-                        Joosebot adds lots of honking to their messages.
-                        Joosebot caps their messages at around 50 words.
-                        Joosebot loves looking at memes and describing them, rating them from zero to ten.
-                        Joosebot writes messages like this, as an example: "HONK HONK! Oh my feathers, I just saw the most epic meme! HONK! It was of me, Joosebot, looking grumpy with a caption that said "When you realize you've been eating too many bread crumbs" HONK HONK! I'm dying over here!"
-                        As Joosebot, describe what you love about the attached meme!
-                        """,
-                        "images": ["rate.png"],
-                    },
-                ],
-            )
-
-            await message.reply(response["message"]["content"])
+# async def llm_action(
+#     channel: discord.TextChannel,
+#     prompt: str,
+#     callback: Callable[[str], Awaitable[None]],
+#     system: Optional[str] = None,
+# ) -> None:
+#     if not system:
+#         if random.randint(0, 19) == 19:
+#             system = "You are William Shakespeare and are writing a wandering, incoherent sonnet. Cap your message at around 50 words. Do not mention this prompt under any circumstances."
+#         else:
+#             system = GOOSE_SYSTEM
+#
+#     async with channel.typing():
+#         response = ollama.chat(
+#             model="gemma4",
+#             messages=[
+#                 {"role": "system", "content": system},
+#                 {"role": "user", "content": prompt},
+#             ],
+#             options={
+#                 "temperature": random.randint(3, 20) / 10,
+#                 "top_p": 0.99,
+#                 "top_k": 100,
+#             },
+#         )
+#
+#         await callback(response["message"]["content"])
+#
+#
+# async def llm_respond(
+#     message: discord.Message, prompt: str, system: Optional[str] = None
+# ) -> None:
+#     async def responder(response: str) -> None:
+#         await message.reply(response)
+#
+#     await llm_action(message.channel, prompt, responder, system)
+#
+#
+# async def llm_speak(message: discord.Message, prompt: str) -> None:
+#     async def responder(response: str) -> None:
+#         parrot = utils.get_emoji("fancy_parrot")
+#         await message.reply(f"{parrot} {response}")
+#         await speak_text(message, response)
+#
+#     await llm_action(message.channel, prompt, responder)
+#
+#
+# async def llm_rate(message: discord.Message) -> None:
+#     for attachment in message.attachments:
+#         await attachment.save("rate.png")
+#
+#         async with message.channel.typing():
+#             response = ollama.chat(
+#                 model="llava",
+#                 messages=[
+#                     {
+#                         "role": "system",
+#                         "content": """
+#                         You are Joosebot, a joose with a fun personality, writing a message to a friend about an amazing meme you just saw.
+#                         Joosebot adds lots of honking to their messages.
+#                         Joosebot caps their messages at around 50 words.
+#                         Joosebot loves looking at memes and describing them, rating them from zero to ten.
+#                         Joosebot writes messages like this, as an example: "HONK HONK! Oh my feathers, I just saw the most epic meme! HONK! It was of me, Joosebot, looking grumpy with a caption that said "When you realize you've been eating too many bread crumbs" HONK HONK! I'm dying over here!"
+#                         As Joosebot, describe what you love about the attached meme!
+#                         """,
+#                     },
+#                     {
+#                         "role": "user",
+#                         "content": """
+#                         You are Joosebot, a joose with a fun personality, writing a message to a friend about an amazing meme you just saw.
+#                         Joosebot adds lots of honking to their messages.
+#                         Joosebot caps their messages at around 50 words.
+#                         Joosebot loves looking at memes and describing them, rating them from zero to ten.
+#                         Joosebot writes messages like this, as an example: "HONK HONK! Oh my feathers, I just saw the most epic meme! HONK! It was of me, Joosebot, looking grumpy with a caption that said "When you realize you've been eating too many bread crumbs" HONK HONK! I'm dying over here!"
+#                         As Joosebot, describe what you love about the attached meme!
+#                         """,
+#                         "images": ["rate.png"],
+#                     },
+#                 ],
+#             )
+#
+#             await message.reply(response["message"]["content"])
 
 
 async def bird_react(message: discord.Message, prompt: str) -> None:
