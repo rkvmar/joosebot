@@ -5,6 +5,7 @@ import os
 import random
 import math
 from emoji import EMOJI_DATA
+from discord import PartialEmoji
 
 COINS_FILE = os.path.join(os.path.dirname(__file__), "coins.json")
 
@@ -193,39 +194,37 @@ async def react_emoji(message: discord.Message, emoji: str) -> None:
     await message.add_reaction(get_emoji(emoji))
 
 class AppEmoji:
-    # claude cant code™
-
-    def __init__(self, data: dict, application_id: int):
+    def __init__(self, data: dict):
         self.id = int(data["id"])
         self.name = data["name"]
         self.animated = data.get("animated", False)
-        self._application_id = application_id
-        self._url = f"https://cdn.discordapp.com/emoji/{self.id}.{'gif' if self.animated else 'png'}"
 
     @property
-    def url(self) -> str:
-        return self._url
+    def url(self):
+        ext = "gif" if self.animated else "png"
+        return f"https://cdn.discordapp.com/emojis/{self.id}.{ext}"
 
-    def __str__(self) -> str:
+    def __str__(self):
         return f"<:{self.name}:{self.id}>"
-
-    def __repr__(self) -> str:
-        return f"AppEmoji(name={self.name!r}, id={self.id})"
 
 
 EMOJI = []
 
 
-async def load_emoji(client: discord.Client):
-    global EMOJI
-    EMOJI = list(client.emojis)
+async def load_emoji(client):
+    EMOJI.clear()
+    EMOJI.extend(client.emojis)
 
-    try:
-        data = await client.http.get_application_emojis(client.application_id)
-        for e in data.get("items", data if isinstance(data, list) else []):
-            EMOJI.append(AppEmoji(e, client.application_id))
-    except Exception as exc:
-        print(f"Failed to load application emojis: {exc}")
+    data = await client.http.get_application_emojis(client.application_id)
+
+    for e in data["items"]:
+        EMOJI.append(
+            PartialEmoji(
+                name=e["name"],
+                id=int(e["id"]),
+                animated=e.get("animated", False),
+            )
+        )
 
 
 def all_emojis() -> list:
