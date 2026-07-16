@@ -15,7 +15,7 @@ async def command(client: discord.Client, message: discord.Message) -> None:
     #     await butils.parse_roulette(message)
 
     # if message.content.startswith('!chancetime'):
-    #     await butils.chance_time(message)
+    #     await butils.chance_time(message, 1)
 
     if message.content == '$coins':
         leaderboard = butils.get_all_coins()
@@ -307,15 +307,15 @@ HJONK HJONK! RESISTANCE IS FUTILE. PAY UP NOW AND ENJOY YOUR FROMAGE WITH A CLEA
     #     close_reading = await message.channel.fetch_message(1206823336651399188)
     #     await close_reading.reply('you might find this helpful')
 
-async def text(client: discord.Client, message: discord.Message) -> None:
-    if 'hjonk' in message.content.lower() or 'joose' in message.content.lower():
-        honks = message.content.lower().count('hjonk') or 1
-        msg = ' '.join(['hjonk'] * honks)
+# async def text(client: discord.Client, message: discord.Message) -> None:
+#     if 'hjonk' in message.content.lower() or 'joose' in message.content.lower():
+#         honks = message.content.lower().count('hjonk') or 1
+#         msg = ' '.join(['hjonk'] * honks)
 
-        if message.guild.id == 1156302232904552548 and len(message.channel.name) == 1:
-            await utils.cathouse(client, msg)
-        else:
-            await message.channel.send(msg)
+#         if message.guild.id == 1156302232904552548 and len(message.channel.name) == 1:
+#             await utils.cathouse(client, msg)
+#         else:
+#             await message.channel.send(msg)
 
     # if message.content == 'jpG_Jpg_JPg_jPG_jPg_JPG_JpG_JPg':
     #     await message.channel.send(file=discord.File('assets/jpG_Jpg_JPg_jPG_jPg_JPG_JpG_JPg.jpg'))

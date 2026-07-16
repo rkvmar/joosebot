@@ -9,53 +9,64 @@ from emoji import EMOJI_DATA
 COINS_FILE = os.path.join(os.path.dirname(__file__), "coins.json")
 
 
-def _load_coins() -> dict:
+def load_coins() -> dict:
     if not os.path.exists(COINS_FILE):
         return {}
     with open(COINS_FILE, "r") as f:
         return json.load(f)
 
 
-def _save_coins(coins: dict) -> None:
+def save_coins(coins: dict) -> None:
     with open(COINS_FILE, "w") as f:
         json.dump(coins, f, indent=2)
 
 
 def get_coins(user_id: int) -> int:
-    coins = _load_coins()
+    coins = load_coins()
     key = str(user_id)
     if key not in coins:
         coins[key] = 100
-        _save_coins(coins)
+        save_coins(coins)
         return 100
     return coins[key]
 
 
 def edit_coins(user_id: int, amount: int) -> int:
-    coins = _load_coins()
+    coins = load_coins()
     key = str(user_id)
     coins[key] = int(coins.get(key, 0) + amount)
-    _save_coins(coins)
+    save_coins(coins)
     return coins[key]
 
 
 def set_coins(user_id: int, amount: int) -> int:
-    coins = _load_coins()
+    coins = load_coins()
     key = str(user_id)
     coins[key] = int(amount)
-    _save_coins(coins)
+    save_coins(coins)
     return coins[key]
 
 
 def reset_all_coins() -> None:
-    _save_coins({})
+    save_coins({})
 
 
 def get_all_coins() -> list[tuple[int, int]]:
-    coins = _load_coins()
+    coins = load_coins()
     return sorted(
         [(int(uid), amount) for uid, amount in coins.items()], key=lambda x: -x[1]
     )
+
+async def give_coins(sender, reciever, amt):
+    if get_coins(sender) > amt:
+        edit_coins(sender, -amt)
+        edit_coins(reciever, amt)
+        return(amt)
+    else:
+        true_coins = get_coins(reciever)
+        edit_coins(sender, true_coins)
+        set_coins(reciever, 0)
+        return(true_coins)
 
 
 def text_emoji(text: str) -> list[str | discord.Emoji]:
@@ -180,7 +191,6 @@ async def react_text(message: discord.Message, text: str) -> None:
 
 async def react_emoji(message: discord.Message, emoji: str) -> None:
     await message.add_reaction(get_emoji(emoji))
-
 
 class AppEmoji:
     # claude cant code™
@@ -401,13 +411,17 @@ def get_random_other_player(user) -> str:
 
 
 async def chance_time(message, coins):
-    message.author.id
-    direction = random.choice(["⬅️", "➡️"])
-    random_player = get_random_other_player(message.author.id)
-    txt = f"<@{message.author.id}>"
+    author = message.author.id
+    # direction = random.choice(["⬅️", "➡️", "communism"])
+    direction = "communism"
+    random_player = int(get_random_other_player(author))
+    txt = f"<@{author}>"
     msg = await message.reply(txt)
     await asyncio.sleep(1)
-    txt += f" {direction}"
+    if direction == "communism":
+        txt += f" {random.choice(all_emojis())}"
+    else:
+        txt += f" {direction}"
     await msg.edit(content=txt)
     await asyncio.sleep(1)
     txt += f" <@{random_player}>"
@@ -415,29 +429,20 @@ async def chance_time(message, coins):
     await asyncio.sleep(1)
 
     if (direction) == "⬅️":
-        if get_coins(random_player) > coins:
-            edit_coins(random_player, -coins)
-            edit_coins(message.author.id, coins)
-            txt += f"\n<@{message.author.id}> stole {coins} joosecoins from <@{random_player}>"
-            await msg.edit(content=txt)
-        else:
-            edit_coins(message.author.id, get_coins(random_player))
-            txt += f"\n<@{message.author.id}> stole {get_coins(random_player)} joosecoins from <@{random_player}>"
-            set_coins(random_player, 0)
-            await msg.edit(content=txt)
+        stolen = await give_coins(random_player, author, coins)
+        txt += f"\n<@{author}> stole {stolen} joosecoins from <@{random_player}>"
+        await msg.edit(content=txt)
 
     elif (direction) == "➡️":
-        if get_coins(message.author.id) > coins:
-            edit_coins(message.author.id, -coins)
-            edit_coins(random_player, coins)
-            txt += f"\n<@{random_player}> stole {coins} joosecoins from <@{message.author.id}>"
-            await msg.edit(content=txt)
-        else:
-            edit_coins(random_player, get_coins(message.author.id))
-            txt += f"\n<@{random_player}> stole {get_coins(message.author.id)} joosecoins from <@{message.author.id}>"
-            set_coins(message.author.id, 0)
-            await msg.edit(content=txt)
-
+        stolen = await give_coins(author, random_player, coins)
+        txt += f"\n<@{random_player}> stole {stolen} joosecoins from <@{author}>"
+        await msg.edit(content=txt)
+    elif (direction) == "communism":
+        total = get_coins(author) + get_coins(random_player)
+        set_coins(author, int(math.floor(total/2)))
+        set_coins(random_player, int(math.floor(total/2)))
+        txt += f"\n<@{author}> and <@{random_player}> shared {total} joosecoins"
+        await msg.edit(content=txt)
 
 async def bankruptcy(message):
     if get_coins(message.author.id) <= 4:
