@@ -355,12 +355,13 @@ async def roulette_wheel(message, coins):
             strip.append(BLACK)
 
     frames = []
-    for i in range(5):
+    times = random.randint(5, 6)
+    for i in range(times):
         frames.append(strip[i : i + 5])
 
     msg = await message.reply(build_roulette_display(frames[0]))
 
-    for i in range(1, random.randint(5, 6)):
+    for i in range(1, times):
         await asyncio.sleep(1)
         await msg.edit(content=build_roulette_display(frames[i]))
 
