@@ -34,11 +34,15 @@ async def command(client: discord.Client, message: discord.Message) -> None:
             lines.append(f'{rank}. {name} — {amount} joosecoins')
 
         await message.reply('\n'.join(lines))
+
     if message.content.startswith('$bankruptcy'):
         await butils.bankruptcy(message)
+
     if message.content.startswith("$give"):
         await butils.parse_give(message)
 
+    if message.content.startswith("$market"):
+        await butils.parse_market(message)
 
     if message.content.startswith('$buy'):
         await butils.parse_buy(message, client)
@@ -55,7 +59,8 @@ async def command(client: discord.Client, message: discord.Message) -> None:
 
     if message.content == '$shop':
         await message.channel.send(f"""```ansi
-{termcolor.colored('pfp', 'blue')} - {termcolor.colored('500', 'green')}  change joosebot's profile picture (use: $buy pfp [attachment])```""")
+{termcolor.colored('pfp', 'blue')} - {termcolor.colored('500', 'green')}  change joosebot's profile picture (use: $buy pfp [attachment])
+{termcolor.colored('wtaer', 'blue')} - {termcolor.colored('100', 'green')}  dm a user "# WTAER BRO" (use: $buy wtaer [@user])```""")
 
     if message.content == '$manifesto':
         await message.delete()

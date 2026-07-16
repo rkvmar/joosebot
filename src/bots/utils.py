@@ -498,6 +498,8 @@ async def parse_buy(message: discord.Message, client: discord.Client) -> None:
 
     if item == "pfp":
         await buy_pfp(message, client)
+    elif item == "wtaer":
+        await buy_wtaer(message)
     else:
         await message.reply(f"unknown item: {item}")
 
@@ -520,11 +522,33 @@ async def buy_pfp(message: discord.Message, client: discord.Client) -> None:
         return
 
     try:
-        img = await attachment.read()
-        await client.user.edit(avatar=img)
+        image_bytes = await attachment.read()
+        await client.user.edit(avatar=image_bytes)
         edit_coins(message.author.id, -cost)
         await message.reply(f"profile picture changed! {cost} joosecoins deducted.")
     except discord.HTTPException as e:
-        await message.reply(e)
+        await message.reply(str(e))
     except Exception as e:
-        await message.reply(e)
+        await message.reply(str(e))
+
+
+async def buy_wtaer(message: discord.Message) -> None:
+    cost = 100
+    balance = get_coins(message.author.id)
+
+    if balance < cost:
+        await message.reply(f"you need {cost} joosecoins to buy this! you have {balance}.")
+        return
+
+    if len(message.mentions) != 1:
+        await message.reply("must mention a user to wtaer!")
+        return
+
+    target = message.mentions[0]
+
+    try:
+        await target.send("# WTAER BRO")
+        edit_coins(message.author.id, -cost)
+        await message.reply(f"wtaer'd <@{target.id}>! {cost} joosecoins deducted.")
+    except Exception as e:
+        await message.reply(str(e))
