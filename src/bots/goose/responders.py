@@ -40,6 +40,9 @@ async def command(client: discord.Client, message: discord.Message) -> None:
         await butils.parse_give(message)
 
 
+    if message.content.startswith('$buy'):
+        await butils.parse_buy(message, client)
+
     if message.content == '$help':
         await message.channel.send(f"""```ansi
 

@@ -485,3 +485,46 @@ async def bankruptcy(message):
         )
     else:
         await message.reply("you are too rich to file for bankruptcy")
+
+
+async def parse_buy(message: discord.Message, client: discord.Client) -> None:
+    parts = message.content.split()
+
+    if len(parts) < 2:
+        await message.reply("must provide an item to buy!")
+        return
+
+    item = parts[1].lower()
+
+    if item == "pfp":
+        await buy_pfp(message, client)
+    else:
+        await message.reply(f"unknown item: {item}")
+
+
+async def buy_pfp(message: discord.Message, client: discord.Client) -> None:
+    cost = 500
+    balance = get_coins(message.author.id)
+
+    if balance < cost:
+        await message.reply(f"you need {cost} joosecoins to buy this! you have {balance}.")
+        return
+
+    if not message.attachments:
+        await message.reply("you must attach an image to use as the profile picture!")
+        return
+
+    attachment = message.attachments[0]
+    if not attachment.content_type or not attachment.content_type.startswith("image/"):
+        await message.reply("the attachment must be an image!")
+        return
+
+    try:
+        img = await attachment.read()
+        await client.user.edit(avatar=img)
+        edit_coins(message.author.id, -cost)
+        await message.reply(f"profile picture changed! {cost} joosecoins deducted.")
+    except discord.HTTPException as e:
+        await message.reply(e)
+    except Exception as e:
+        await message.reply(e)
