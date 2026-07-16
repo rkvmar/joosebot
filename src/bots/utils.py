@@ -65,8 +65,8 @@ async def give_coins(sender, reciever, amt):
         return(amt)
     else:
         true_coins = get_coins(sender)
-        edit_coins(sender, true_coins)
-        set_coins(reciever, 0)
+        edit_coins(reciever, true_coins)
+        set_coins(sender, 0)
         return(true_coins)
 
 async def parse_give(message: discord.Message) -> None:
