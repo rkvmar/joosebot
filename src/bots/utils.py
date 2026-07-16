@@ -466,9 +466,9 @@ async def chance_time(message, coins):
 
 async def bankruptcy(message):
     if get_coins(message.author.id) <= 4:
-        set_coins(message.author.id, 5)
+        set_coins(message.author.id, 10)
         await message.reply(
-            "you filed for bankruptcy and now have 5 joosecoins because I felt bad for you"
+            "you filed for bankruptcy and now have 10 joosecoins because I felt bad for you"
         )
     else:
         await message.reply("you are too rich to file for bankruptcy")
