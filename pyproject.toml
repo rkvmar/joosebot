@@ -8,7 +8,6 @@ dependencies = [
     "termcolor>=2.4.0",
     "pynacl>=1.5.0",
     "pyttsx3>=2.97",
-    # "ollama>=0.3.3",
     "emoji>=2.13.2",
     "httpx>=0.28.1",
     "wand>=0.6.13",

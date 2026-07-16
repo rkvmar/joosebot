@@ -265,14 +265,15 @@ async def parse_gamble(message: discord.Message) -> None:
     if len(parts) < 2:
         await message.reply("must provide coins!")
         return
-
+    balance = get_coins(message.author.id)
     try:
-        coins = int(parts[1])
+        if parts[1] == "all":
+            coins = balance
+        else:
+            coins = int(parts[1])
     except ValueError:
         await message.reply("coins must be an integer!")
         return
-
-    balance = get_coins(message.author.id)
     if balance < coins:
         await message.reply(f"you only have {balance} joosecoins!")
         return
