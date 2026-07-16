@@ -7,7 +7,7 @@ import termcolor
 from bots import utils as butils
 from bots.goose import utils, sounds
 
-# async def command(client: discord.Client, message: discord.Message) -> None:
+async def command(client: discord.Client, message: discord.Message) -> None:
 #     if message.content == '!help':
 #         await message.channel.send(f"""```ansi
 
