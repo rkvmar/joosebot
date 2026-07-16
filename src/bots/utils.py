@@ -64,10 +64,44 @@ async def give_coins(sender, reciever, amt):
         edit_coins(reciever, amt)
         return(amt)
     else:
-        true_coins = get_coins(reciever)
+        true_coins = get_coins(sender)
         edit_coins(sender, true_coins)
         set_coins(reciever, 0)
         return(true_coins)
+
+async def parse_give(message: discord.Message) -> None:
+    parts = message.content.split()
+
+    if len(message.mentions) != 1:
+        await message.reply("must mention a user!")
+        return
+
+    if len(parts) < 3:
+        await message.reply("must provide coins!")
+        return
+
+    try:
+        coins = int(parts[2])
+    except ValueError:
+        await message.reply("coins must be an integer!")
+        return
+
+    if coins < 1:
+        await message.reply("you must give at least 1 joosecoin!")
+        return
+
+    sender = message.author.id
+    receiver = message.mentions[0].id
+
+    if sender == receiver:
+        await message.reply("you can't give coins to yourself!")
+        return
+
+    given = await give_coins(sender, receiver, coins)
+
+    await message.reply(
+        f"<@{sender}> gave {given} joosecoins to <@{receiver}>"
+    )
 
 
 def text_emoji(text: str) -> list[str | discord.Emoji]:

@@ -36,6 +36,8 @@ async def command(client: discord.Client, message: discord.Message) -> None:
         await message.reply('\n'.join(lines))
     if message.content.startswith('$bankruptcy'):
         await butils.bankruptcy(message)
+    if message.content.startswith("$give"):
+        await butils.parse_give(message)
 
 
 #     if message.content == '!help':
