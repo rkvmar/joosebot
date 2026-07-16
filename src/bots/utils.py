@@ -335,7 +335,7 @@ async def slot_machine(message: discord.Message, coins: int) -> None:
 
 def build_slot_display(emojis: list, spinning: bool = False) -> str:
     e = [str(e) for e in emojis]
-    return f"slot machine\n│  {e[0]}  │  {e[1]}  │   {e[2]}  │"
+    return f"**slot machine**\n│  {e[0]}  │  {e[1]}  │   {e[2]}  │"
 
 
 def slot_score(emojis: list, coins: int) -> tuple[str, int]:
@@ -421,7 +421,7 @@ async def roulette_wheel(message, coins):
 
 
 def build_roulette_display(squares: list, spinning: bool = False) -> str:
-    return f"roulette wheel\n⬛ ⬛ ⬇️ ⬛ ⬛\n{squares[0]} {squares[1]} {squares[2]} {squares[3]} {squares[4]}\n⬛ ⬛ ⬆️ ⬛ ⬛"
+    return f"**roulette wheel**\n⬛ ⬛ ⬇️ ⬛ ⬛\n{squares[0]} {squares[1]} {squares[2]} {squares[3]} {squares[4]}\n⬛ ⬛ ⬆️ ⬛ ⬛"
 
 
 def roulette_score(landed: str, coins: int) -> tuple[str, int]:
@@ -448,7 +448,7 @@ async def chance_time(message, coins):
     direction = random.choice(["⬅️", "➡️","⬅️", "➡️", "communism"])
     # direction = "communism"
     random_player = int(get_random_other_player(author))
-    txt = f"<@{author}>"
+    txt = f"**chance time!**\n<@{author}>"
     msg = await message.reply(txt)
     await asyncio.sleep(1)
     if direction == "communism":
