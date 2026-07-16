@@ -61,8 +61,8 @@ async def command(client: discord.Client, message: discord.Message) -> None:
     if message.content == '$shop':
         await message.channel.send(f"""```ansi
 {termcolor.colored('pfp', 'blue')} - {termcolor.colored('500', 'green')}  change joosebot's profile picture (use: $buy pfp [attachment])
-{termcolor.colored('message', 'blue')} - {termcolor.colored('300', 'green')}  dm a user "# WTAER BRO" (use: $buy message [@user] [message])
-{termcolor.colored('wtaer', 'blue')} - {termcolor.colored('100', 'green')}  dm a user "# WTAER BRO" (use: $buy wtaer [@user])```""")
+{termcolor.colored('wtaer', 'blue')} - {termcolor.colored('100', 'green')}  dm a user "# WTAER BRO" (use: $buy wtaer [@user])
+{termcolor.colored('message', 'blue')} - {termcolor.colored('300', 'green')}  dm a user a custom message (use: $buy message [@user] [message])```""")
 
     if message.content == '$manifesto':
         await message.delete()
