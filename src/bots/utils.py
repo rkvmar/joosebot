@@ -302,7 +302,7 @@ def slot_score(emojis: list, coins: int) -> tuple[str, int]:
         counts[icon] = counts.get(icon, 0) + 1
     best = max(counts.values())
     if best == 3:
-        winnings = int(round(coins * random.uniform(1.8, 2.3)))
+        winnings = int(round(coins * random.uniform(2, 4)))
     elif best == 2:
         winnings = int(round(coins * random.uniform(1.3, 1.7)))
     else:
