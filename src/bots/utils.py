@@ -445,8 +445,8 @@ def get_random_other_player(user) -> str:
 
 async def chance_time(message, coins):
     author = message.author.id
-    # direction = random.choice(["⬅️", "➡️", "communism"])
-    direction = "communism"
+    direction = random.choice(["⬅️", "➡️","⬅️", "➡️", "communism"])
+    # direction = "communism"
     random_player = int(get_random_other_player(author))
     txt = f"<@{author}>"
     msg = await message.reply(txt)
