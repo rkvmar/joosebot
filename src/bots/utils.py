@@ -227,20 +227,6 @@ async def react_text(message: discord.Message, text: str) -> None:
 async def react_emoji(message: discord.Message, emoji: str) -> None:
     await message.add_reaction(get_emoji(emoji))
 
-class AppEmoji:
-    def __init__(self, data: dict):
-        self.id = int(data["id"])
-        self.name = data["name"]
-        self.animated = data.get("animated", False)
-
-    @property
-    def url(self):
-        ext = "gif" if self.animated else "png"
-        return f"https://cdn.discordapp.com/emojis/{self.id}.{ext}"
-
-    def __str__(self):
-        return f"<:{self.name}:{self.id}>"
-
 
 EMOJI = []
 
@@ -500,6 +486,8 @@ async def parse_buy(message: discord.Message, client: discord.Client) -> None:
         await buy_pfp(message, client)
     elif item == "wtaer":
         await buy_wtaer(message)
+    elif item == "message":
+        await buy_message(message)
     else:
         await message.reply(f"unknown item: {item}")
 
@@ -550,5 +538,31 @@ async def buy_wtaer(message: discord.Message) -> None:
         await target.send(f"# WTAER BRO {get_emoji('bro')}")
         edit_coins(message.author.id, -cost)
         await message.reply(f"wtaer'd <@{target.id}>! {cost} joosecoins deducted.")
+    except Exception as e:
+        await message.reply(str(e))
+
+async def buy_message(message: discord.Message) -> None:
+    cost = 300
+    balance = get_coins(message.author.id)
+
+    if balance < cost:
+        await message.reply(f"you need {cost} joosecoins to buy this! you have {balance}.")
+        return
+
+    if len(message.mentions) != 1:
+        await message.reply("must mention a user to message!")
+        return
+
+    if len(message.content.split()) < 4:
+        await message.reply("must provide a message to send!")
+        return
+
+    target = message.mentions[0]
+    message_text = message.content.split(maxsplit=3)[3]
+
+    try:
+        await target.send(message_text)
+        edit_coins(message.author.id, -cost)
+        await message.reply(f"sent {message_text} to <@{target.id}>! {cost} joosecoins deducted.")
     except Exception as e:
         await message.reply(str(e))
