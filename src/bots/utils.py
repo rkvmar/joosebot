@@ -335,7 +335,7 @@ def slot_score(emojis: list, coins: int) -> tuple[str, int]:
     elif best == 2:
         winnings = int(round(coins * random.uniform(1.3, 1.7)))
     else:
-        winnings = int(round(coins * random.uniform(0.3, 0.9)))
+        winnings = int(round(coins * random.uniform(0.5, 0.9)))
     return f"you recieved: {winnings} joosecoins", winnings
 
 
