@@ -113,7 +113,7 @@ async def react_emoji(message: discord.Message, emoji: str) -> None:
     await message.add_reaction(get_emoji(emoji))
 
 class AppEmoji:
-    """Minimal wrapper so application emojis work the same as discord.Emoji."""
+    #claude cant code™
 
     def __init__(self, data: dict, application_id: int):
         self.id = int(data['id'])
