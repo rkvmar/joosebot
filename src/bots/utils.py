@@ -547,7 +547,7 @@ async def buy_wtaer(message: discord.Message) -> None:
     target = message.mentions[0]
 
     try:
-        await target.send("# WTAER BRO")
+        await target.send(f"# WTAER BRO {get_emoji('bro')}")
         edit_coins(message.author.id, -cost)
         await message.reply(f"wtaer'd <@{target.id}>! {cost} joosecoins deducted.")
     except Exception as e:
