@@ -283,12 +283,12 @@ async def parse_gamble(message: discord.Message) -> None:
         return
     mode = random.randint(0, 2)
     if mode == 0:
-        await slot_machine(message, coins)
         edit_coins(message.author.id, -coins)
+        await slot_machine(message, coins)
     elif mode == 1:
         # await slot_machine(message, coins)
-        await roulette_wheel(message, coins)
         edit_coins(message.author.id, -coins)
+        await roulette_wheel(message, coins)
     elif mode == 2:
         await chance_time(message, coins)
 
