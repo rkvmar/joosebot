@@ -6,8 +6,8 @@ import random
 import pyttsx3
 import os
 import requests
-from wand.color import Color
-from wand.image import Image
+# from wand.color import Color
+# from wand.image import Image
 
 from io import BytesIO
 from collections.abc import Awaitable, Callable
@@ -62,7 +62,7 @@ async def animate_the_cat(message: discord.Message, bear: list[str]) -> None:
             await msg.edit(content=b)
 
 
-async def jimothy(message: discord.Message) -> None:
+# async def jimothy(message: discord.Message) -> None:
     attachment = message.attachments[0]
     filename = f"assets/jim/{attachment.filename}"
 
@@ -88,7 +88,7 @@ async def jimothy(message: discord.Message) -> None:
     await message.reply(file=discord.File(buf, filename=attachment.filename))
 
 
-def nine(emoji: discord.Emoji) -> list[discord.File]:
+# def nine(emoji: discord.Emoji) -> list[discord.File]:
     res = requests.get(emoji.url)
 
     files = []

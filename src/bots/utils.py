@@ -1,6 +1,52 @@
+import asyncio
 import discord
+import json
+import os
 import random
+import math
 from emoji import EMOJI_DATA
+
+COINS_FILE = os.path.join(os.path.dirname(__file__), 'coins.json')
+
+def _load_coins() -> dict:
+    if not os.path.exists(COINS_FILE):
+        return {}
+    with open(COINS_FILE, 'r') as f:
+        return json.load(f)
+
+def _save_coins(coins: dict) -> None:
+    with open(COINS_FILE, 'w') as f:
+        json.dump(coins, f, indent=2)
+
+def get_coins(user_id: int) -> int:
+    coins = _load_coins()
+    key = str(user_id)
+    if key not in coins:
+        coins[key] = 100
+        _save_coins(coins)
+        return 100
+    return coins[key]
+
+def edit_coins(user_id: int, amount: int) -> int:
+    coins = _load_coins()
+    key = str(user_id)
+    coins[key] = int(coins.get(key, 0) + amount)
+    _save_coins(coins)
+    return coins[key]
+
+def set_coins(user_id: int, amount: int) -> int:
+    coins = _load_coins()
+    key = str(user_id)
+    coins[key] = int(amount)
+    _save_coins(coins)
+    return coins[key]
+
+def reset_all_coins() -> None:
+    _save_coins({})
+
+def get_all_coins() -> list[tuple[int, int]]:
+    coins = _load_coins()
+    return sorted([(int(uid), amount) for uid, amount in coins.items()], key=lambda x: -x[1])
 
 def text_emoji(text: str) -> list[str | discord.Emoji]:
     text = text.lower()
@@ -153,3 +199,156 @@ def get_emojis(emoji: str) -> list:
 
 def get_emoji(emoji: str):
     return get_emojis(emoji)[0]
+
+async def parse_gamble(message: discord.Message) -> None:
+    parts = message.content.split()
+
+    if len(parts) < 2:
+        await message.reply("must provide coins!")
+        return
+
+    try:
+        coins = int(parts[1])
+    except ValueError:
+        await message.reply("coins must be an integer!")
+        return
+
+    balance = get_coins(message.author.id)
+    if balance < coins:
+        await message.reply(f"you only have {balance} joosecoins!")
+        return
+
+    if coins < 1:
+        await message.reply("you must gamble at least 1 joosecoin!")
+        return
+
+    edit_coins(message.author.id, -coins)
+    if random.randint(0, 1) == 0:
+        await slot_machine(message, coins)
+    else:
+        # await slot_machine(message, coins)
+        await roulette_wheel(message, coins)
+
+async def slot_machine(message: discord.Message, coins: int) -> None:
+    emoji_pool = all_emojis()
+    frames = []
+    for i in range(5):
+        pick = random.sample(emoji_pool, 3)
+        if(random.randint(0,2)==0):
+            pick[1]=pick[0]
+            if(random.randint(0,3)==0):
+                pick[2]=pick[0]
+        random.shuffle(pick)
+        frames.append(pick)
+
+    msg = await message.reply(build_slot_display(frames[0], spinning=True))
+
+    for i in range(1, 5):
+        await asyncio.sleep(1)
+        await msg.edit(content=build_slot_display(frames[i], spinning=True))
+
+    await asyncio.sleep(1)
+    final = frames[-1]
+    await msg.edit(content=build_slot_display(final, spinning=False))
+    await asyncio.sleep(1)
+    score_msg, winnings = slot_score(final, coins)
+    edit_coins(message.author.id, winnings)
+    await msg.edit(content=build_slot_display(final, spinning=False) + '\n' + score_msg)
+
+
+
+def build_slot_display(emojis: list, spinning: bool = False) -> str:
+    e = [str(e) for e in emojis]
+    return f'slot machine\n│  {e[0]}  │  {e[1]}  │   {e[2]}  │'
+
+def slot_score(emojis: list, coins: int) -> tuple[str, int]:
+    e = [str(e) for e in emojis]
+    counts = {}
+    for icon in e:
+        counts[icon] = counts.get(icon, 0) + 1
+    best = max(counts.values())
+    if best == 3:
+        winnings = int(math.floor(coins * random.uniform(1.8,2.3)))
+    elif best == 2:
+        winnings = int(math.floor(coins * random.uniform(1.3,1.7)))
+    else:
+        winnings = int(math.floor(coins * random.uniform(0.5,0.9)))
+    return f'you recieved: {winnings} joosecoins', winnings
+
+
+async def parse_roulette(message: discord.Message) -> None:
+    parts = message.content.split()
+
+    if len(parts) < 2:
+        await message.reply("must provide coins!")
+        return
+
+    try:
+        coins = int(parts[1])
+    except ValueError:
+        await message.reply("coins must be an integer!")
+        return
+
+    balance = get_coins(message.author.id)
+    if balance < coins:
+        await message.reply(f"you only have {balance} joosecoins!")
+        return
+
+    if coins < 1:
+        await message.reply("you must gamble at least 1 joosecoin!")
+        return
+
+    edit_coins(message.author.id, -coins)
+    await roulette_wheel(message, coins)
+
+
+async def roulette_wheel(message, coins):
+    RED = '🟥'
+    BLACK = '⬛'
+    GREEN = '🟩'
+
+    strip_length = 25
+    first_color = random.choice([RED, BLACK])
+    strip = []
+    for i in range(strip_length):
+        if random.random() < 0.10 and (not strip or strip[-1] != GREEN):
+            strip.append(GREEN)
+        elif (i % 2 == 0 and first_color == RED) or (i % 2 == 1 and first_color == BLACK):
+            strip.append(RED)
+        else:
+            strip.append(BLACK)
+
+    frames = []
+    for i in range(5):
+        frames.append(strip[i:i+5])
+
+    msg = await message.reply(build_roulette_display(frames[0]))
+
+    for i in range(1, 5):
+        await asyncio.sleep(1)
+        await msg.edit(content=build_roulette_display(frames[i]))
+
+    await asyncio.sleep(1)
+    final = frames[-1]
+    landed = final[2]
+    await msg.edit(content=build_roulette_display(final, spinning=False))
+    await asyncio.sleep(1)
+    score_msg, winnings = roulette_score(landed, coins)
+    edit_coins(message.author.id, winnings)
+    await msg.edit(content=build_roulette_display(final, spinning=False) + '\n' + score_msg)
+
+
+def build_roulette_display(squares: list, spinning: bool = False) -> str:
+    return f'roulette wheel\n⬛ ⬛ ⬇️ ⬛ ⬛\n{squares[0]} {squares[1]} {squares[2]} {squares[3]} {squares[4]}\n⬛ ⬛ ⬆️ ⬛ ⬛'
+
+
+def roulette_score(landed: str, coins: int) -> tuple[str, int]:
+    if landed == '🟩':
+        winnings = int(math.floor(coins * random.uniform(2.0, 4.0)))
+        return f'you landed on 🟩\nyou received: {winnings} joosecoins', winnings
+    elif landed == '🟥':
+        winnings = int(math.floor(coins * random.uniform(1.3, 1.7)))
+        return f'you landed on 🟥\nyou received: {winnings} joosecoins', winnings
+    else:
+        winnings = int(math.floor(coins * random.uniform(0.5, 0.9)))
+        return f'you landed on ⬛\nyou received: {winnings} joosecoins', winnings
