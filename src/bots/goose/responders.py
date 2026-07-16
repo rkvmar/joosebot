@@ -61,7 +61,7 @@ from bots.goose import utils, sounds
 # {termcolor.colored('!help', 'blue')}   show normal help
 # {termcolor.colored('!help2', 'blue')}  show this message```""")
 
-        await message.delete()
+        # await message.delete()
 
     # if message.content.startswith('!ask '):
     #     prompt = message.content[5:]
