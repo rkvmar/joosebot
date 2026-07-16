@@ -8,13 +8,16 @@ from bots import utils as butils
 from bots.goose import utils, sounds
 
 async def command(client: discord.Client, message: discord.Message) -> None:
-    if message.content.startswith('!gamble'):
+    if message.content.startswith('$gamble'):
         await butils.parse_gamble(message)
 
     # if message.content.startswith('!roulette'):
     #     await butils.parse_roulette(message)
 
-    if message.content == '!coins':
+    # if message.content.startswith('!chancetime'):
+    #     await butils.chance_time(message)
+
+    if message.content == '$coins':
         leaderboard = butils.get_all_coins()
 
         if not leaderboard:
@@ -30,7 +33,10 @@ async def command(client: discord.Client, message: discord.Message) -> None:
                 name = f'User {user_id}'
             lines.append(f'{rank}. {name} — {amount} joosecoins')
 
-        await message.channel.send('\n'.join(lines))
+        await message.reply('\n'.join(lines))
+    if message.content.startswith('$bankruptcy'):
+        await butils.bankruptcy(message)
+
 
 #     if message.content == '!help':
 #         await message.channel.send(f"""```ansi
@@ -212,7 +218,7 @@ async def command(client: discord.Client, message: discord.Message) -> None:
     #     if message.reference:
     #         await message.reference.resolved.clear_reactions()
 
-    if message.content == '!manifestjo':
+    if message.content == '$manifesto':
         await message.delete()
 
         taxation = '''

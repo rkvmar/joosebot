@@ -221,13 +221,16 @@ async def parse_gamble(message: discord.Message) -> None:
     if coins < 1:
         await message.reply("you must gamble at least 1 joosecoin!")
         return
-
-    edit_coins(message.author.id, -coins)
-    if random.randint(0, 1) == 0:
+    mode = random.randint(0, 2)
+    if mode == 0:
         await slot_machine(message, coins)
-    else:
+        edit_coins(message.author.id, -coins)
+    elif mode == 1:
         # await slot_machine(message, coins)
         await roulette_wheel(message, coins)
+        edit_coins(message.author.id, -coins)
+    elif mode == 2:
+        await chance_time(message, coins)
 
 async def slot_machine(message: discord.Message, coins: int) -> None:
     emoji_pool = all_emojis()
@@ -268,11 +271,11 @@ def slot_score(emojis: list, coins: int) -> tuple[str, int]:
         counts[icon] = counts.get(icon, 0) + 1
     best = max(counts.values())
     if best == 3:
-        winnings = int(math.floor(coins * random.uniform(1.8,2.3)))
+        winnings = int(round(coins * random.uniform(1.8,2.3)))
     elif best == 2:
-        winnings = int(math.floor(coins * random.uniform(1.3,1.7)))
+        winnings = int(round(coins * random.uniform(1.3,1.7)))
     else:
-        winnings = int(math.floor(coins * random.uniform(0.5,0.9)))
+        winnings = int(round(coins * random.uniform(0.5,0.9)))
     return f'you recieved: {winnings} joosecoins', winnings
 
 
@@ -344,11 +347,63 @@ def build_roulette_display(squares: list, spinning: bool = False) -> str:
 
 def roulette_score(landed: str, coins: int) -> tuple[str, int]:
     if landed == '🟩':
-        winnings = int(math.floor(coins * random.uniform(2.0, 4.0)))
+        winnings = int(round(coins * random.uniform(2.0, 4.0)))
         return f'you landed on 🟩\nyou received: {winnings} joosecoins', winnings
     elif landed == '🟥':
-        winnings = int(math.floor(coins * random.uniform(1.3, 1.7)))
+        winnings = int(round(coins * random.uniform(1.3, 1.7)))
         return f'you landed on 🟥\nyou received: {winnings} joosecoins', winnings
     else:
-        winnings = int(math.floor(coins * random.uniform(0.5, 0.9)))
+        winnings = int(round(coins * random.uniform(0.5, 0.9)))
         return f'you landed on ⬛\nyou received: {winnings} joosecoins', winnings
+
+def get_random_other_player(user) -> str:
+    pl = random.choice(get_all_coins())[0]
+    while(pl == user):
+        pl = random.choice(get_all_coins())[0]
+    return pl
+
+
+async def chance_time(message, coins):
+    message.author.id
+    direction = random.choice(['⬅️','➡️'])
+    random_player = get_random_other_player(message.author.id)
+    txt = f"<@{message.author.id}>"
+    msg = await message.reply(txt)
+    await asyncio.sleep(1)
+    txt += f" {direction}"
+    await msg.edit(content=txt)
+    await asyncio.sleep(1)
+    txt += f" <@{random_player}>"
+    await msg.edit(content=txt)
+    await asyncio.sleep(1)
+
+    if(direction) == "⬅️":
+        if(get_coins(random_player)>coins):
+            edit_coins(random_player, -coins)
+            edit_coins(message.author.id, coins)
+            txt += f"\n<@{message.author.id}> stole {coins} joosecoins from <@{random_player}>"
+            await msg.edit(content=txt)
+        else:
+            edit_coins(message.author.id, get_coins(random_player))
+            txt += f"\n<@{message.author.id}> stole {get_coins(random_player)} joosecoins from <@{random_player}>"
+            set_coins(random_player, 0)
+            await msg.edit(content=txt)
+
+    elif(direction) == "➡️":
+        if(get_coins(message.author.id)>coins):
+            edit_coins(message.author.id, -coins)
+            edit_coins(random_player, coins)
+            txt += f"\n<@{random_player}> stole {coins} joosecoins from <@{message.author.id}>"
+            await msg.edit(content=txt)
+        else:
+            edit_coins(random_player, get_coins(message.author.id))
+            txt += f"\n<@{random_player}> stole {get_coins(message.author.id)} joosecoins from <@{message.author.id}>"
+            set_coins(message.author.id, 0)
+            await msg.edit(content=txt)
+
+async def bankruptcy(message):
+    if(get_coins(message.author.id) <= 4):
+        set_coins(message.author.id, 5)
+        await message.reply("you filed for bankruptcy and now have 5 joosecoins because I felt bad for you")
+    else:
+        await message.reply("you are too rich to file for bankruptcy")
