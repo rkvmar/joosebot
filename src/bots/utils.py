@@ -370,7 +370,7 @@ async def slot_machine(message: discord.Message, coins: int) -> None:
     frames = []
     for i in range(5):
         pick = random.sample(emoji_pool, 3)
-        if random.randint(0, 2) == 0:
+        if random.randint(0, 1) == 0:
             pick[1] = pick[0]
             if random.randint(0, 3) == 0:
                 pick[2] = pick[0]
