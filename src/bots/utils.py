@@ -56,7 +56,7 @@ def get_all_coins() -> list[tuple[int, int]]:
     coins = load_coins()
     return sorted(
         [(int(uid), amount) for uid, amount in coins.items()], key=lambda x: -x[1]
-    )
+)
 
 async def give_coins(sender, reciever, amt):
     if get_coins(sender) > amt:
