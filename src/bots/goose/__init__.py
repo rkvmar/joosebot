@@ -9,6 +9,7 @@ from bots.goose import utils, responders
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 client = discord.Client(intents=intents)
 last = -1
