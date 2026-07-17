@@ -552,14 +552,14 @@ async def chance_time(message, coins):
         stolen = await give_coins(random_player, author, coins)
         edit_stat(author, "chance", "stolen_from_others", stolen)
         edit_stat(random_player, "chance", "stolen_by_others", stolen)
-        txt += f"\n<@{author}> stole {stolen} joosecoins from <@{random_player}>"
+        txt += f"\n<@{author}> yoinked {stolen} joosecoins from <@{random_player}>"
         await msg.edit(content=txt)
 
     elif (direction) == "➡️":
         stolen = await give_coins(author, random_player, coins)
         edit_stat(random_player, "chance", "stolen_from_others", stolen)
         edit_stat(author, "chance", "stolen_by_others", stolen)
-        txt += f"\n<@{random_player}> stole {stolen} joosecoins from <@{author}>"
+        txt += f"\n<@{random_player}> yoinked {stolen} joosecoins from <@{author}>"
         await msg.edit(content=txt)
     elif (direction) == "communism":
         total = get_coins(author) + get_coins(random_player)
