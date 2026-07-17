@@ -116,7 +116,7 @@ async def parse_stats(message: discord.Message) -> None:
     txt += f"total gambles: {s['gambles']}\n\n"
     txt += f"slots — plays: {s['slot']['plays']}, wagered: {s['slot']['wagered']}, won: {s['slot']['won']} (net {net_slot})\n"
     txt += f"roulette — plays: {s['roulette']['plays']}, wagered: {s['roulette']['wagered']}, won: {s['roulette']['won']} (net {net_roulette})\n"
-    txt += f"chance time — plays: {s['chance']['plays']}, stolen from others: {s['chance']['stolen_from_others']}, stolen by others: {s['chance']['stolen_by_others']}, communism: {s['chance']['communism']}"
+    txt += f"chance time — plays: {s['chance']['plays']}, stolen from others: {s['chance']['stolen_from_others']}, stolen by others: {s['chance']['stolen_by_others']}, communism: {s['chance']['communism']}\n"
     txt += f"times gone bankrupt: {s['bankruptcy']}\n\n"
 
     await message.reply(txt)
