@@ -78,6 +78,7 @@ def default_stats():
         "slot": {"plays": 0, "wagered": 0, "won": 0},
         "roulette": {"plays": 0, "wagered": 0, "won": 0},
         "chance": {"plays": 0, "stolen_from_others": 0, "stolen_by_others": 0, "communism": 0},
+        "bankruptcy": 0,
     }
 
 
@@ -116,6 +117,7 @@ async def parse_stats(message: discord.Message) -> None:
     txt += f"slots — plays: {s['slot']['plays']}, wagered: {s['slot']['wagered']}, won: {s['slot']['won']} (net {net_slot})\n"
     txt += f"roulette — plays: {s['roulette']['plays']}, wagered: {s['roulette']['wagered']}, won: {s['roulette']['won']} (net {net_roulette})\n"
     txt += f"chance time — plays: {s['chance']['plays']}, stolen from others: {s['chance']['stolen_from_others']}, stolen by others: {s['chance']['stolen_by_others']}, communism: {s['chance']['communism']}"
+    txt += f"times gone bankrupt: {s['bankruptcy']}\n\n"
 
     await message.reply(txt)
 
@@ -545,8 +547,9 @@ async def chance_time(message, coins):
         await msg.edit(content=txt)
 
 async def bankruptcy(message):
-    if get_coins(message.author.id) <= 4:
+    if get_coins(message.author.id) <= 10:
         set_coins(message.author.id, 10)
+        edit_stat(message.author.id, "bankruptcy")
         await message.reply(
             "you filed for bankruptcy and now have 10 joosecoins because I felt bad for you"
         )
