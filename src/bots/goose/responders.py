@@ -39,7 +39,7 @@ async def command(client: discord.Client, message: discord.Message) -> None:
 
         await message.reply('\n'.join(lines))
 
-    if message.content.startswith('$balance'):
+    if message.content == ('$balance') or message.content == ('$bal'):
         coins = butils.get_coins(message.author.id)
         await message.reply(f'You have {coins} joosecoins.')
     if message.content.startswith('$bankruptcy'):
