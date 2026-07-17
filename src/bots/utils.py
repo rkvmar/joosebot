@@ -103,11 +103,13 @@ def get_user_stats(user_id: int):
 
 
 
-def edit_stat(user_id: int, category: str, stat: str = None, amount: int = 1) -> None:
+def edit_stat(user_id: int, category: str, stat: str = None, amount: int = 1):
     stats = load_stats()
     key = str(user_id)
     if key not in stats:
         stats[key] = default_stats()
+    else:
+        stats[key] = fill_missing(stats[key])
 
     if stat is None:
         stats[key][category] += amount
@@ -115,6 +117,7 @@ def edit_stat(user_id: int, category: str, stat: str = None, amount: int = 1) ->
         stats[key][category][stat] += amount
 
     save_stats(stats)
+
 
 
 async def parse_stats(message: discord.Message) -> None:
