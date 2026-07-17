@@ -27,7 +27,7 @@ async def command(client: discord.Client, message: discord.Message) -> None:
         lines = ['**joosecoin leaderboard**']
         for rank, (user_id, amount) in enumerate(leaderboard, 1):
             try:
-                member = (client.get_user(user_id))
+                member = (message.guild.get_member(user_id))
                 print(member)
 
                 if member is None:
