@@ -511,8 +511,9 @@ async def chance_time(message, coins):
     direction = random.choice(["⬅️", "➡️","⬅️", "➡️","⬅️", "➡️","⬅️", "➡️","⬅️", "➡️","⬅️", "➡️","⬅️", "➡️", "communism"])
     # direction = "communism"
     random_player = int(get_random_other_player(author))
-    while(get_coins(random_player) <= 0):
-        random_player = int(get_random_other_player(author))
+    if(direction == "⬅️"):
+        while(get_coins(random_player) <= 0):
+            random_player = int(get_random_other_player(author))
     txt = f"**chance time!**\n<@{author}>"
     msg = await message.reply(txt)
     await asyncio.sleep(1)
