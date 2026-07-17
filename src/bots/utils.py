@@ -8,6 +8,7 @@ from emoji import EMOJI_DATA
 from discord import PartialEmoji
 
 COINS_FILE = os.path.join(os.path.dirname(__file__), "coins.json")
+STATS_FILE = os.path.join(os.path.dirname(__file__), "stats.json")
 
 
 def load_coins() -> dict:
@@ -57,6 +58,67 @@ def get_all_coins() -> list[tuple[int, int]]:
     return sorted(
         [(int(uid), amount) for uid, amount in coins.items()], key=lambda x: -x[1]
 )
+
+
+def load_stats() -> dict:
+    if not os.path.exists(STATS_FILE):
+        return {}
+    with open(STATS_FILE, "r") as f:
+        return json.load(f)
+
+
+def save_stats(stats: dict) -> None:
+    with open(STATS_FILE, "w") as f:
+        json.dump(stats, f, indent=2)
+
+
+def default_stats():
+    return {
+        "gambles": 0,
+        "slot": {"plays": 0, "wagered": 0, "won": 0},
+        "roulette": {"plays": 0, "wagered": 0, "won": 0},
+        "chance": {"plays": 0, "stolen_from_others": 0, "stolen_by_others": 0, "communism": 0},
+    }
+
+
+def get_user_stats(user_id: int) -> dict:
+    stats = load_stats()
+    key = str(user_id)
+    if key not in stats:
+        stats[key] = default_stats()
+        save_stats(stats)
+    return stats[key]
+
+
+def edit_stat(user_id: int, category: str, stat: str = None, amount: int = 1) -> None:
+    stats = load_stats()
+    key = str(user_id)
+    if key not in stats:
+        stats[key] = default_stats()
+
+    if stat is None:
+        stats[key][category] += amount
+    else:
+        stats[key][category][stat] += amount
+
+    save_stats(stats)
+
+
+async def parse_stats(message: discord.Message) -> None:
+    target = message.mentions[0] if message.mentions else message.author
+    s = get_user_stats(target.id)
+
+    net_slot = s["slot"]["won"] - s["slot"]["wagered"]
+    net_roulette = s["roulette"]["won"] - s["roulette"]["wagered"]
+
+    txt = f"**stats for <@{target.id}>**\n"
+    txt += f"total gambles: {s['gambles']}\n\n"
+    txt += f"slots — plays: {s['slot']['plays']}, wagered: {s['slot']['wagered']}, won: {s['slot']['won']} (net {net_slot})\n"
+    txt += f"roulette — plays: {s['roulette']['plays']}, wagered: {s['roulette']['wagered']}, won: {s['roulette']['won']} (net {net_roulette})\n"
+    txt += f"chance time — plays: {s['chance']['plays']}, stolen from others: {s['chance']['stolen_from_others']}, stolen by others: {s['chance']['stolen_by_others']}, communism: {s['chance']['communism']}"
+
+    await message.reply(txt)
+
 
 async def give_coins(sender, reciever, amt):
     if get_coins(sender) > amt:
@@ -281,15 +343,23 @@ async def parse_gamble(message: discord.Message) -> None:
     if coins < 1:
         await message.reply("you must gamble at least 1 joosecoin!")
         return
+
+    edit_stat(message.author.id, "gambles")
+
     mode = random.randint(0, 2)
     if mode == 0:
         edit_coins(message.author.id, -coins)
+        edit_stat(message.author.id, "slot", "plays")
+        edit_stat(message.author.id, "slot", "wagered", coins)
         await slot_machine(message, coins)
     elif mode == 1:
         # await slot_machine(message, coins)
         edit_coins(message.author.id, -coins)
+        edit_stat(message.author.id, "roulette", "plays")
+        edit_stat(message.author.id, "roulette", "wagered", coins)
         await roulette_wheel(message, coins)
     elif mode == 2:
+        edit_stat(message.author.id, "chance", "plays")
         await chance_time(message, coins)
 
 
@@ -317,6 +387,7 @@ async def slot_machine(message: discord.Message, coins: int) -> None:
     await asyncio.sleep(1)
     score_msg, winnings = slot_score(final, coins)
     edit_coins(message.author.id, winnings)
+    edit_stat(message.author.id, "slot", "won", winnings)
     await msg.edit(content=build_slot_display(final, spinning=False) + "\n" + score_msg)
 
 
@@ -363,6 +434,8 @@ async def parse_roulette(message: discord.Message) -> None:
         return
 
     edit_coins(message.author.id, -coins)
+    edit_stat(message.author.id, "roulette", "plays")
+    edit_stat(message.author.id, "roulette", "wagered", coins)
     await roulette_wheel(message, coins)
 
 
@@ -402,6 +475,7 @@ async def roulette_wheel(message, coins):
     await asyncio.sleep(1)
     score_msg, winnings = roulette_score(landed, coins)
     edit_coins(message.author.id, winnings)
+    edit_stat(message.author.id, "roulette", "won", winnings)
     await msg.edit(
         content=build_roulette_display(final, spinning=False) + "\n" + score_msg
     )
@@ -450,17 +524,23 @@ async def chance_time(message, coins):
 
     if (direction) == "⬅️":
         stolen = await give_coins(random_player, author, coins)
+        edit_stat(author, "chance", "stolen_from_others", stolen)
+        edit_stat(random_player, "chance", "stolen_by_others", stolen)
         txt += f"\n<@{author}> stole {stolen} joosecoins from <@{random_player}>"
         await msg.edit(content=txt)
 
     elif (direction) == "➡️":
         stolen = await give_coins(author, random_player, coins)
+        edit_stat(random_player, "chance", "stolen_from_others", stolen)
+        edit_stat(author, "chance", "stolen_by_others", stolen)
         txt += f"\n<@{random_player}> stole {stolen} joosecoins from <@{author}>"
         await msg.edit(content=txt)
     elif (direction) == "communism":
         total = get_coins(author) + get_coins(random_player)
         set_coins(author, int(math.floor(total/2)))
         set_coins(random_player, int(math.floor(total/2)))
+        edit_stat(author, "chance", "communism")
+        edit_stat(random_player, "chance", "communism")
         txt += f"\n<@{author}> and <@{random_player}> shared {total} joosecoins"
         await msg.edit(content=txt)
 

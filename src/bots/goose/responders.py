@@ -51,6 +51,9 @@ async def command(client: discord.Client, message: discord.Message) -> None:
     if message.content.startswith('$buy'):
         await butils.parse_buy(message, client)
 
+    if message.content.startswith('$stats'):
+        await butils.parse_stats(message)
+
     if message.content == '$help':
         await message.channel.send(f"""```ansi
 
@@ -59,6 +62,7 @@ async def command(client: discord.Client, message: discord.Message) -> None:
 {termcolor.colored('$give', 'blue')}  {termcolor.colored('[@user]', 'yellow')}  {termcolor.colored('[amount]', 'green')}  give joosecoins to a user
 {termcolor.colored('$bankruptcy', 'blue')}  file for bankruptcy
 {termcolor.colored('$coins', 'blue')}  view joosecoin leaderboard
+{termcolor.colored('$stats', 'blue')}  {termcolor.colored('[@user] (optional)', 'yellow')}  view stats
 {termcolor.colored('$shop', 'blue')}  view the shop
 {termcolor.colored('$buy', 'blue')} {termcolor.colored('[item]', 'green')} buy an item```""")
 
