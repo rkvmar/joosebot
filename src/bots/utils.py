@@ -75,20 +75,32 @@ def save_stats(stats: dict) -> None:
 def default_stats():
     return {
         "gambles": 0,
-        "slot": {"plays": 0, "wagered": 0, "won": 0},
-        "roulette": {"plays": 0, "wagered": 0, "won": 0},
+        "slot": {"plays": 0, "wagered": 0, "won": 0, "nothings": 0, "pairs": 0, "jackpots": 0},
+        "roulette": {"plays": 0, "wagered": 0, "won": 0, "blacks": 0, "reds": 0, "jackpots": 0},
         "chance": {"plays": 0, "stolen_from_others": 0, "stolen_by_others": 0, "communism": 0},
         "bankruptcy": 0,
     }
 
+def fill_missing(entry):
+    defaults = default_stats()
+    for k, v in defaults.items():
+        if k not in entry:
+            entry[k] = v
+        elif isinstance(v, dict):
+            for sub_k, sub_v in v.items():
+                entry[k].setdefault(sub_k, sub_v)
+    return entry
 
-def get_user_stats(user_id: int) -> dict:
+def get_user_stats(user_id: int):
     stats = load_stats()
     key = str(user_id)
     if key not in stats:
         stats[key] = default_stats()
-        save_stats(stats)
+    else:
+        stats[key] = fill_missing(stats[key])
+    save_stats(stats)
     return stats[key]
+
 
 
 def edit_stat(user_id: int, category: str, stat: str = None, amount: int = 1) -> None:
@@ -112,11 +124,11 @@ async def parse_stats(message: discord.Message) -> None:
     net_slot = s["slot"]["won"] - s["slot"]["wagered"]
     net_roulette = s["roulette"]["won"] - s["roulette"]["wagered"]
 
-    txt = f"**stats for <@{target.id}>**\n"
+    txt = f"## stats for <@{target.id}>\n"
     txt += f"total gambles: {s['gambles']}\n\n"
-    txt += f"slots — plays: {s['slot']['plays']}, wagered: {s['slot']['wagered']}, won: {s['slot']['won']} (net {net_slot})\n"
-    txt += f"roulette — plays: {s['roulette']['plays']}, wagered: {s['roulette']['wagered']}, won: {s['roulette']['won']} (net {net_roulette})\n"
-    txt += f"chance time — plays: {s['chance']['plays']}, stolen from others: {s['chance']['stolen_from_others']}, stolen by others: {s['chance']['stolen_by_others']}, communism: {s['chance']['communism']}\n"
+    txt += f"**slots** — plays: {s['slot']['plays']}, wagered: {s['slot']['wagered']}, won: {s['slot']['won']}, nothings: {s['slot']['nothings']}, pairs: {s['slot']['pairs']}, jackpots: {s['slot']['jackpots']} (net {net_slot})\n"
+    txt += f"**roulette** — plays: {s['roulette']['plays']}, wagered: {s['roulette']['wagered']}, won: {s['roulette']['won']}, blacks: {s['roulette']['blacks']}, reds: {s['roulette']['reds']}, jackpots: {s['roulette']['jackpots']} (net {net_roulette})\n"
+    txt += f"**chance time** — plays: {s['chance']['plays']}, stolen from others: {s['chance']['stolen_from_others']}, stolen by others: {s['chance']['stolen_by_others']}, communism: {s['chance']['communism']}\n"
     txt += f"times gone bankrupt: {s['bankruptcy']}\n\n"
 
     await message.reply(txt)
@@ -387,7 +399,7 @@ async def slot_machine(message: discord.Message, coins: int) -> None:
     final = frames[-1]
     await msg.edit(content=build_slot_display(final, spinning=False))
     await asyncio.sleep(1)
-    score_msg, winnings = slot_score(final, coins)
+    score_msg, winnings = slot_score(final, coins, message.author.id)
     edit_coins(message.author.id, winnings)
     edit_stat(message.author.id, "slot", "won", winnings)
     await msg.edit(content=build_slot_display(final, spinning=False) + "\n" + score_msg)
@@ -398,17 +410,20 @@ def build_slot_display(emojis: list, spinning: bool = False) -> str:
     return f"**slot machine**\n│  {e[0]}  │  {e[1]}  │   {e[2]}  │"
 
 
-def slot_score(emojis: list, coins: int) -> tuple[str, int]:
+def slot_score(emojis: list, coins: int, author) -> tuple[str, int]:
     e = [str(e) for e in emojis]
     counts = {}
     for icon in e:
         counts[icon] = counts.get(icon, 0) + 1
     best = max(counts.values())
     if best == 3:
+        edit_stat(author, "slot", "jackpots")
         winnings = int(round(coins * random.uniform(2, 4)))
     elif best == 2:
+        edit_stat(author, "slot", "pairs")
         winnings = int(round(coins * random.uniform(1.3, 1.7)))
     else:
+        edit_stat(author, "slot", "nothings")
         winnings = int(round(coins * random.uniform(0.5, 0.9)))
     return f"you recieved: {winnings} joosecoins", winnings
 
@@ -475,7 +490,7 @@ async def roulette_wheel(message, coins):
     landed = final[2]
     await msg.edit(content=build_roulette_display(final, spinning=False))
     await asyncio.sleep(1)
-    score_msg, winnings = roulette_score(landed, coins)
+    score_msg, winnings = roulette_score(landed, coins, message.author.id)
     edit_coins(message.author.id, winnings)
     edit_stat(message.author.id, "roulette", "won", winnings)
     await msg.edit(
@@ -487,14 +502,17 @@ def build_roulette_display(squares: list, spinning: bool = False) -> str:
     return f"**roulette wheel**\n⬛ ⬛ ⬇️ ⬛ ⬛\n{squares[0]} {squares[1]} {squares[2]} {squares[3]} {squares[4]}\n⬛ ⬛ ⬆️ ⬛ ⬛"
 
 
-def roulette_score(landed: str, coins: int) -> tuple[str, int]:
+def roulette_score(landed: str, coins: int, author) -> tuple[str, int]:
     if landed == "🟩":
+        edit_stat(author, "roulette", "jackpots")
         winnings = int(round(coins * random.uniform(2.0, 4.0)))
         return f"you landed on 🟩\nyou received: {winnings} joosecoins", winnings
     elif landed == "🟥":
+        edit_stat(author, "roulette", "reds")
         winnings = int(round(coins * random.uniform(1.3, 1.7)))
         return f"you landed on 🟥\nyou received: {winnings} joosecoins", winnings
     else:
+        edit_stat(author, "roulette", "blacks")
         winnings = int(round(coins * random.uniform(0.4, 0.9)))
         return f"you landed on ⬛\nyou received: {winnings} joosecoins", winnings
 
