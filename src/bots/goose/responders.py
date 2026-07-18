@@ -104,3 +104,6 @@ HJONK HJONK! RESISTANCE IS FUTILE. PAY UP NOW AND ENJOY YOUR FROMAGE WITH A CLEA
             message = message.reference.resolved
 
         await butils.react_emoji(message, 'bro')
+    if '🚨' in message.content:
+        print('ALERT ALERT')
+        await message.channel.send('# 🚨 ALERT ALERT 🚨')
