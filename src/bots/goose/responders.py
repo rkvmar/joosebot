@@ -8,7 +8,7 @@ from bots import utils as butils
 from bots.goose import utils, sounds
 
 async def command(client: discord.Client, message: discord.Message) -> None:
-    if message.content.startswith('$gamble'):
+    if message.content.startswith('$gamble '):
         await butils.parse_gamble(message)
 
     # if message.content.startswith('!roulette'):
