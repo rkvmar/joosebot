@@ -536,7 +536,7 @@ async def chance_time(message, coins):
         while(get_coins(random_player) <= 0):
             random_player = int(get_random_other_player(author))
     if(direction == "communism"):
-        if(random.randint(0,4) == 0):
+        if(random.randint(0,4) == 0 and get_all_coins()[0][0] != author):
             random_player = get_all_coins()[0][0]
     txt = f"**chance time!**\n<@{author}>"
     msg = await message.reply(txt)

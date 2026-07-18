@@ -17,27 +17,44 @@ async def command(client: discord.Client, message: discord.Message) -> None:
     # if message.content.startswith('!chancetime'):
     #     await butils.chance_time(message, 1)
 
-    if message.content == '$coins':
+    if message.content.startswith('$coins'):
+        # claude tries to pages
         leaderboard = butils.get_all_coins()
-
         if not leaderboard:
             await message.channel.send('no joosecoins yet!')
             return
 
-        lines = ['**joosecoin leaderboard**']
-        for rank, (user_id, amount) in enumerate(leaderboard, 1):
+        all_lines = [
+            f'{rank}. <@{user_id}> — {amount} joosecoins'
+            for rank, (user_id, amount) in enumerate(leaderboard, 1)
+        ]
+
+        chunk_size = 10
+        pages = [
+            '\n'.join(all_lines[i:i + chunk_size])
+            for i in range(0, len(all_lines), chunk_size)
+        ]
+
+        parts = message.content.split()
+        page = 0
+        if len(parts) > 1:
             try:
-                member = (message.guild.get_member(user_id))
-                print(member)
+                requested = int(parts[1])
+                if 1 <= requested <= len(pages):
+                    page = requested - 1
+                else:
+                    await message.reply(f'page must be between 1 and {len(pages)}')
+                    return
+            except ValueError:
+                await message.reply(f'"{parts[1]}" isn\'t a valid page number')
+                return
 
-                if member is None:
-                    member = (await message.guild.fetch_member(user_id))
-                name = member.display_name
-            except discord.NotFound:
-                name = f'User {user_id}'
-            lines.append(f'{rank}. {name} — {amount} joosecoins')
+        lines = [f'**joosecoin leaderboard** (page {page + 1}/{len(pages)})', pages[page]]
 
-        await message.reply('\n'.join(lines))
+        await message.reply(
+            '\n'.join(lines),
+            allowed_mentions=discord.AllowedMentions(users=False)
+        )
 
     if message.content == ('$balance') or message.content == ('$bal'):
         coins = butils.get_coins(message.author.id)
