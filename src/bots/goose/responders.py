@@ -54,7 +54,7 @@ async def command(client: discord.Client, message: discord.Message) -> None:
     if message.content.startswith('$buy '):
         await butils.parse_buy(message, client)
 
-    if message.content == '$stats':
+    if message.content.startswith('$stats'):
         await butils.parse_stats(message)
 
     if message.content == '$help':
