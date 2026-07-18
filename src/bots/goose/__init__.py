@@ -35,7 +35,6 @@ async def on_message(message: discord.Message) -> None:
         return
 
     await responders.command(client, message)
-    await responders.text(client, message)
 
 def run() -> None:
     load_dotenv()
