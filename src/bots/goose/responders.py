@@ -45,16 +45,16 @@ async def command(client: discord.Client, message: discord.Message) -> None:
     if message.content.startswith('$bankruptcy'):
         await butils.bankruptcy(message)
 
-    if message.content.startswith("$give"):
+    if message.content.startswith("$give "):
         await butils.parse_give(message)
 
-    if message.content.startswith("$market"):
-        await butils.parse_market(message)
+    # if message.content == ("$market"):
+    #     await butils.parse_market(message)
 
-    if message.content.startswith('$buy'):
+    if message.content.startswith('$buy '):
         await butils.parse_buy(message, client)
 
-    if message.content.startswith('$stats'):
+    if message.content == '$stats':
         await butils.parse_stats(message)
 
     if message.content == '$help':
