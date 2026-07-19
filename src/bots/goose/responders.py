@@ -8,6 +8,8 @@ from bots import utils as butils
 from bots.goose import utils, sounds
 
 async def command(client: discord.Client, message: discord.Message) -> None:
+    if message.content.startswith('$'):
+        print(message.guild.name, message.author, message.content)
     if message.content.startswith('$gamble '):
         await butils.parse_gamble(message)
 
@@ -19,7 +21,7 @@ async def command(client: discord.Client, message: discord.Message) -> None:
 
     if message.content.startswith('$coins'):
         # claude tries to pages
-        leaderboard = butils.get_all_coins()
+        leaderboard = butils.get_all_coins(message.guild.id)
         if not leaderboard:
             await message.channel.send('no joosecoins yet!')
             return
@@ -57,7 +59,7 @@ async def command(client: discord.Client, message: discord.Message) -> None:
         )
 
     if message.content == ('$balance') or message.content == ('$bal'):
-        coins = butils.get_coins(message.author.id)
+        coins = butils.get_coins(message.author.id, message.guild.id)
         await message.reply(f'You have {coins} joosecoins.')
     if message.content.startswith('$bankruptcy'):
         await butils.bankruptcy(message)
@@ -91,7 +93,8 @@ async def command(client: discord.Client, message: discord.Message) -> None:
         await message.channel.send(f"""```ansi
 {termcolor.colored('pfp', 'blue')} - {termcolor.colored('500', 'green')}  change joosebot's profile picture (use: $buy pfp [attachment])
 {termcolor.colored('wtaer', 'blue')} - {termcolor.colored('100', 'green')}  dm a user "# WTAER BRO" (use: $buy wtaer [@user])
-{termcolor.colored('message', 'blue')} - {termcolor.colored('300', 'green')}  dm a user a custom message (use: $buy message [@user] [message])```""")
+{termcolor.colored('message', 'blue')} - {termcolor.colored('300', 'green')}  dm a user a custom message (use: $buy message [@user] [message])
+{termcolor.colored('assassination', 'blue')} - {termcolor.colored('max 3000', 'green')}  attempt to assassinate a user (use: $buy assassination [@user] [coins])```""")
 
     if message.content == '$manifesto':
         await message.delete()
@@ -121,6 +124,6 @@ HJONK HJONK! RESISTANCE IS FUTILE. PAY UP NOW AND ENJOY YOUR FROMAGE WITH A CLEA
             message = message.reference.resolved
 
         await butils.react_emoji(message, 'bro')
-    if '🚨' in message.content:
+    if 'alert' in message.content.lower():
         print('ALERT ALERT')
         await message.channel.send('# 🚨 ALERT ALERT 🚨')
