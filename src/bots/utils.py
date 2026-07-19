@@ -553,7 +553,7 @@ def roulette_score(landed: str, coins: int, author, guild_id: int) -> tuple[str,
 
 def get_random_other_player(user, guild_id: int) -> int | None:
     pool = get_all_coins(guild_id)
-    others = [uid for uid, _ in pool if uid != user]
+    others = [uid for uid, amount in pool if uid != user and amount > 0]
     if not others:
         return None
     return random.choice(others)
@@ -568,6 +568,9 @@ async def chance_time(message, coins, guild_id):
     if(direction == "⬅️"):
         while(get_coins(random_player, guild_id) <= 0):
             random_player = int(get_random_other_player(author, guild_id))
+            if random_player is None:
+                        direction = "➡️"
+                        random_player = get_random_other_player(author, guild_id)
     if(direction == "communism"):
         if(random.randint(0,4) == 0 and get_all_coins(guild_id)[0][0] != author):
             random_player = get_all_coins(guild_id)[0][0]
@@ -790,7 +793,8 @@ async def buy_assassination(message, guild_id):
 def random_assassination_message(attacker_id, target_id, stolen):
     return random.choice([
         f"<@{attacker_id}> stabbed <@{target_id}> {random.randint(5,25)} times and stole {stolen} joosecoins!",
-        f"<@{attacker_id}> hired a hitman against <@{target_id}> and stole {stolen} joosecoins!",
+        f"<@{attacker_id}> leaned a hitman against <@{target_id}> and stole {stolen} joosecoins!",
+        f"<@{attacker_id}> hitman'd <@{target_id}> and stole {stolen} joosecoins!",
         f"<@{attacker_id}> poisoned <@{target_id}> and stole {stolen} joosecoins!",
         f"<@{attacker_id}> set up a trap for <@{target_id}> and stole {stolen} joosecoins!",
         f"<@{target_id}> forgot to pay the cheese tax to  <@{attacker_id}>, and was thus murdered, stealing {stolen} joosecoins!",
