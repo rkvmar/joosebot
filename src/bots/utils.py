@@ -583,10 +583,16 @@ async def chance_time(message, coins, guild_id):
         txt += f" {random.choice(all_emojis())}"
     else:
         txt += f" {direction}"
-    await msg.edit(content=txt)
+    try:
+        await msg.edit(content=txt)
+    except discord.errors.HTTPException:
+        pass
     await asyncio.sleep(1)
     txt += f" <@{random_player}>"
-    await msg.edit(content=txt)
+    try:
+        await msg.edit(content=txt)
+    except discord.errors.HTTPException:
+        pass
     await asyncio.sleep(1)
 
     if direction == "⬅️":
@@ -594,14 +600,20 @@ async def chance_time(message, coins, guild_id):
         edit_stat(author, guild_id, "chance", "stolen_from_others", stolen)
         edit_stat(random_player, guild_id, "chance", "stolen_by_others", stolen)
         txt += f"\n<@{author}> yoinked {stolen} joosecoins from <@{random_player}>"
-        await msg.edit(content=txt)
+        try:
+            await msg.edit(content=txt)
+        except discord.errors.HTTPException:
+            pass
 
     elif direction == "➡️":
         stolen = await give_coins(author, random_player, coins, guild_id)
         edit_stat(random_player, guild_id, "chance", "stolen_from_others", stolen)
         edit_stat(author, guild_id, "chance", "stolen_by_others", stolen)
         txt += f"\n<@{random_player}> yoinked {stolen} joosecoins from <@{author}>"
-        await msg.edit(content=txt)
+        try:
+            await msg.edit(content=txt)
+        except discord.errors.HTTPException:
+            pass
     elif direction == "communism":
         total = get_coins(author, guild_id) + get_coins(random_player, guild_id)
         set_coins(author, int(math.floor(total / 2)), guild_id)
@@ -609,7 +621,10 @@ async def chance_time(message, coins, guild_id):
         edit_stat(author, guild_id, "chance", "communism")
         edit_stat(random_player, guild_id, "chance", "communism")
         txt += f"\n<@{author}> and <@{random_player}> shared {total} joosecoins"
-        await msg.edit(content=txt)
+        try:
+            await msg.edit(content=txt)
+        except discord.errors.HTTPException:
+            pass
 
 
 async def bankruptcy(message):
