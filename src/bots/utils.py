@@ -28,9 +28,9 @@ def get_coins(user_id, guild_id):
     user_key = str(user_id)
     guild_coins = coins.setdefault(guild_key, {})
     if user_key not in guild_coins:
-        guild_coins[user_key] = 100
+        guild_coins[user_key] = 10
         save_coins(coins)
-        return 100
+        return 10
     return guild_coins[user_key]
 
 
