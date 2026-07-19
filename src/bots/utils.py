@@ -415,7 +415,8 @@ async def slot_machine(message, coins, guild_id) -> None:
     frames = []
     for i in range(5):
         pick = random.sample(emoji_pool, 3)
-        if random.randint(0, 1) == 0:
+        rig = 1 if get_coins(message.author.id, guild_id) < 5000 else 4
+        if random.randint(0, rig) == 0:
             pick[1] = pick[0]
             if random.randint(0, 3) == 0:
                 pick[2] = pick[0]
@@ -499,7 +500,8 @@ async def roulette_wheel(message, coins, guild_id):
     first_color = random.choice([RED, BLACK])
     strip = []
     for i in range(strip_length):
-        if random.random() < 0.10 and (not strip or strip[-1] != GREEN):
+        rig = 0.10 if get_coins(message.author.id, guild_id) < 5000 else 0.05
+        if random.random() < rig and (not strip or strip[-1] != GREEN):
             strip.append(GREEN)
         elif (i % 2 == 0 and first_color == RED) or (
             i % 2 == 1 and first_color == BLACK
@@ -724,7 +726,7 @@ async def buy_message(message: discord.Message, guild_id) -> None:
 def assassination_chance(coins):
     coins = max(1, min(coins, 3000))
     MIN_CHANCE = 0.05
-    MAX_CHANCE = 0.75
+    MAX_CHANCE = 0.33
     return MIN_CHANCE + (coins / 3000) * (MAX_CHANCE - MIN_CHANCE)
 
 
