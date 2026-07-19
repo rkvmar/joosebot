@@ -427,16 +427,25 @@ async def slot_machine(message, coins, guild_id) -> None:
 
     for i in range(1, 5):
         await asyncio.sleep(1)
-        await msg.edit(content=build_slot_display(frames[i], spinning=True))
+        try:
+            await msg.edit(content=build_slot_display(frames[i], spinning=True))
+        except discord.errors.HTTPException:
+            await message.reply(content=build_slot_display(frames[i], spinning=True))
 
     await asyncio.sleep(1)
     final = frames[-1]
-    await msg.edit(content=build_slot_display(final, spinning=False))
+    try:
+        await msg.edit(content=build_slot_display(final, spinning=False))
+    except discord.errors.HTTPException:
+        await message.reply(content=build_slot_display(final, spinning=False))
     await asyncio.sleep(1)
     score_msg, winnings = slot_score(final, coins, message.author.id, guild_id)
     edit_coins(message.author.id, winnings, guild_id)
     edit_stat(message.author.id, guild_id, "slot", "won", winnings)
-    await msg.edit(content=build_slot_display(final, spinning=False) + "\n" + score_msg)
+    try:
+        await msg.edit(content=build_slot_display(final, spinning=False) + "\n" + score_msg)
+    except discord.errors.HTTPException:
+        await message.reply(content=build_slot_display(final, spinning=False) + "\n" + score_msg)
 
 
 def build_slot_display(emojis, spinning = False):
@@ -519,19 +528,30 @@ async def roulette_wheel(message, coins, guild_id):
 
     for i in range(1, times):
         await asyncio.sleep(1)
-        await msg.edit(content=build_roulette_display(frames[i]))
+        try:
+            await msg.edit(content=build_roulette_display(frames[i]))
+        except discord.errors.HTTPException:
+            await message.reply(content=build_roulette_display(frames[i]))
 
     await asyncio.sleep(1)
     final = frames[-1]
     landed = final[2]
-    await msg.edit(content=build_roulette_display(final, spinning=False))
+    try:
+        await msg.edit(content=build_roulette_display(final, spinning=False))
+    except discord.errors.HTTPException:
+        await message.reply(content=build_roulette_display(final, spinning=False))
     await asyncio.sleep(1)
     score_msg, winnings = roulette_score(landed, coins, message.author.id, guild_id)
     edit_coins(message.author.id, winnings, guild_id)
     edit_stat(message.author.id, guild_id, "roulette", "won", winnings)
-    await msg.edit(
-        content=build_roulette_display(final, spinning=False) + "\n" + score_msg
-    )
+    try:
+        await msg.edit(
+            content=build_roulette_display(final, spinning=False) + "\n" + score_msg
+        )
+    except discord.errors.HTTPException:
+        await message.reply(
+            content=build_roulette_display(final, spinning=False) + "\n" + score_msg
+        )
 
 
 def build_roulette_display(squares: list, spinning: bool = False) -> str:
@@ -586,7 +606,7 @@ async def chance_time(message, coins, guild_id):
     try:
         await msg.edit(content=txt)
     except discord.errors.HTTPException:
-        pass
+        msg = await message.reply(txt)
     await asyncio.sleep(1)
     txt += f" <@{random_player}>"
     try:
@@ -603,7 +623,7 @@ async def chance_time(message, coins, guild_id):
         try:
             await msg.edit(content=txt)
         except discord.errors.HTTPException:
-            pass
+            msg = await message.reply(txt)
 
     elif direction == "➡️":
         stolen = await give_coins(author, random_player, coins, guild_id)
@@ -613,7 +633,7 @@ async def chance_time(message, coins, guild_id):
         try:
             await msg.edit(content=txt)
         except discord.errors.HTTPException:
-            pass
+            msg = await message.reply(txt)
     elif direction == "communism":
         total = get_coins(author, guild_id) + get_coins(random_player, guild_id)
         set_coins(author, int(math.floor(total / 2)), guild_id)
@@ -624,7 +644,7 @@ async def chance_time(message, coins, guild_id):
         try:
             await msg.edit(content=txt)
         except discord.errors.HTTPException:
-            pass
+            msg = await message.reply(txt)
 
 
 async def bankruptcy(message):
