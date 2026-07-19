@@ -763,6 +763,9 @@ async def buy_assassination(message, guild_id):
         return
 
     target_balance = get_coins(target.id, guild_id)
+    if(balance > target_balance):
+        await message.reply(f"please dont kill poor people :c")
+        return
 
     edit_coins(message.author.id, -coins, guild_id)
     edit_stat(message.author.id, guild_id, "assassination", "attempts")
