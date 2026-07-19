@@ -789,7 +789,7 @@ async def buy_assassination(message, guild_id):
 
     chance = assassination_chance(coins)
     if random.random() < chance:
-        stolen = min(1000, int(round(target_balance * random.uniform(0.01, 0.10))))
+        stolen = int(round(target_balance * random.uniform(0.01, 0.03)))
         set_coins(target.id, 0, guild_id)
         coins = load_coins()
         if str(target.id) in coins.get(str(guild_id), {}):
